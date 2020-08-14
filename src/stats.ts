@@ -2,6 +2,23 @@ import git from "nodegit";
 import { Scan } from "./scan";
 
 export class Stats extends Scan {
+  private outOfRange: number = 99999;
+  private daysInLastSixMonths: number = 183;
+  private monthNames: string[] = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
   constructor(private email: string, folder: string) {
     super(folder);
   }
@@ -11,11 +28,11 @@ export class Stats extends Scan {
   }
 
   // count diff days from the date of commit from now
-  private countDaysSinceDate(date: Date, outOfRange: number): number {
+  private countDaysSinceDate(date: Date): number {
     const current = new Date(Date.now());
     const days = Math.trunc(((+current - +date + 1) / 24) * 60 * 60 * 1000);
 
-    return days > 6 * 31 ? outOfRange : days;
+    return days > 6 * 31 ? this.outOfRange : days;
   }
 
   // walk trough repository and count how many commits
@@ -28,16 +45,14 @@ export class Stats extends Scan {
       const repo = await git.Repository.open(path);
       const first = await repo.getMasterCommit();
       const history = first.history();
-      const outOfRange = 99999;
       const offset = this.calcOffset();
 
       history.on("commit", (commit) => {
-        const daysAgo =
-          this.countDaysSinceDate(commit.date(), outOfRange) + offset;
+        const daysAgo = this.countDaysSinceDate(commit.date()) + offset;
 
         if (commit.author().email() !== email) return;
 
-        if (daysAgo !== outOfRange) {
+        if (daysAgo !== this.outOfRange) {
           const value = commits.get(daysAgo) || 0;
           commits.set(daysAgo, value + 1);
         }
@@ -110,7 +125,25 @@ export class Stats extends Scan {
     return cols;
   }
 
-  private printMonths() {}
+  private printMonths() {
+    let week = new Date(
+      Date.now() / 1000 / 60 / 60 / 24 - this.daysInLastSixMonths
+    );
+    const month = week.getUTCMonth();
+
+    process.stdout.write("         ");
+    while (true) {
+      if (week.getUTCMonth() === month) {
+        process.stdout.write(this.monthNames[month]);
+      } else {
+        process.stdout.write("    ");
+      }
+
+      week = new Date(+week + 7 * 24);
+      if (week === new Date(Date.now())) break;
+    }
+    console.log("");
+  }
 
   // prints the cells of the graph
   private printCells(cols: Map<number, number[]>) {
