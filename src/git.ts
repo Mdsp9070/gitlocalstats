@@ -58,6 +58,25 @@ export class GitLocal {
     return fs.readFileSync(filePath).toString().split("\n");
   }
 
+  // adds the element of the 'new' array
+  // into the 'current' array, only if not already there
+  joinArrays(newly: string[], current: string[]): string[] {
+    for (const path of newly) {
+      if (current.indexOf(path) === -1) {
+        current.push(path);
+      }
+    }
+
+    return current;
+  }
+
+  // join all paths and append to '.gitlocalstats'
+  dumpStringsArrayToFile(repos: string[], filePath: string) {
+    const content = repos.join("\n");
+
+    fs.appendFileSync(filePath, content);
+  }
+
   // add new paths to the '.gitlocalstats'
   private addNewArrayElementsToFile(filePath: string, newRepos: string[]) {
     const existingRepos = this.parseFileLinesToArray(filePath);
