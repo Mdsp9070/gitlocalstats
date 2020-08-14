@@ -8,15 +8,15 @@ export class Scan {
 
   // recursivally scan folders
   private scanGitFolders(folders: string[], folder: string): string[] {
-    folder = folder.replace(/\//g, "");
+    folder = folder.replace(/\/$/, "");
 
     let path = "";
 
     fs.readdir(folder, (err, files) => {
-      if (err) throw new Error(err.message);
+      if (err) process.stdout.write(err.message);
 
       for (const file of files) {
-        if (fs.lstatSync(file).isDirectory()) {
+        if (fs.statSync(file).isDirectory()) {
           path = `${folder}/${basename(file)}`;
 
           if (basename(file) === ".git") {

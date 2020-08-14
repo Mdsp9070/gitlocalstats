@@ -162,6 +162,32 @@ export class Stats extends Scan {
     process.stdout.write(out);
   }
 
+  private printCell(value: number, today: boolean) {
+    let escape = "\033[0;37;30m";
+
+    if (value > 0 && value < 5) {
+      escape = "\033[1;30;47m";
+    }
+    if (value >= 5 && value < 10) {
+      escape = "\033[1;30;43m";
+    }
+    if (value >= 10) escape = "\033[1;37;45m";
+
+    if (today) escape = "\033[1;37;45m";
+
+    if (value === 0) {
+      process.stdout.write(`${escape}  - \033[0m`);
+      return;
+    }
+
+    if (value >= 10) {
+      process.stdout.write(`${escape} ${value} \033[0m`);
+    }
+    if (value >= 100) {
+      process.stdout.write(`${escape}${value} \033[0m`);
+    }
+  }
+
   // prints the cells of the graph
   private printCells(cols: Map<number, number[]>) {
     this.printMonths();
