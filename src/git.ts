@@ -198,6 +198,38 @@ export class GitLocal {
     return cols;
   }
 
+  private printMonths() {
+    
+  }
+
+  // prints the cells of the graph
+  private printCells(cols: Map<number, number[]>) {
+    this.printMonths();
+
+    for (let j = 6; j >= 0; j--) {
+      for (let i = 6 * 4 + 1; i >= 0; i--) {
+        if (i === 6 * 4 + 1) {
+          this.printDayCol(j);
+        }
+
+        if (cols.get(i) !== undefined) {
+          const col = cols.get(i)!;
+          if (i === 0 && j === this.calcOffset() - 1) {
+            this.printCell(col[j], true);
+            continue;
+          } else {
+            if (col.length > j) {
+              this.printCell(col[j], false);
+              continue;
+            }
+          }
+        }
+        this.printCell(0, false);
+      }
+      console.log("");
+    }
+  }
+
   private printCommitsStats(commits: Map<number, number>) {
     const keys = this.sortMapIntoArray(commits);
     const col = this.buildCols(keys, commits);
