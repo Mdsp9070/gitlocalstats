@@ -1,5 +1,5 @@
 import { program } from "commander";
-import { GitLocal } from "./git";
+import { Stats } from "./stats";
 
 // variables to hold arguments values
 let folder = "";
@@ -16,4 +16,4 @@ program
 program.parse(process.argv);
 
 // creates a new instance of gitlocalstats
-const git = new GitLocal(folder, email);
+const gitStats = new Stats(email, folder);
