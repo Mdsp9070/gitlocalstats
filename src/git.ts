@@ -98,6 +98,7 @@ export class GitLocal {
     return new Date(Date.now()).getUTCMonth();
   }
 
+  // count diff days from the date of commit from now
   private countDaysSinceDate(date: Date, outOfRange: number): number {
     const current = new Date(Date.now());
     const days = Math.trunc(((+current - +date + 1) / 24) * 60 * 60 * 1000);
@@ -105,6 +106,7 @@ export class GitLocal {
     return days > 6 * 31 ? outOfRange : days;
   }
 
+  // walk trough repository and count how many commits
   private async fillCommits(
     email: string,
     path: string,
@@ -157,6 +159,49 @@ export class GitLocal {
     }
 
     return commits;
+  }
+
+  // iterate over the map and sort all keys into a array
+  private sortMapIntoArray(m: Map<number, number>): number[] {
+    const keys: number[] = [];
+
+    m.forEach((_, key) => {
+      keys.push(key);
+    });
+
+    return keys.sort((a, b) => a - b);
+  }
+
+  // generates a map with rows and columns ready to be printed to screen
+  private buildCols(
+    keys: number[],
+    commits: Map<number, number>
+  ): Map<number, number[]> {
+    const cols = new Map<number, number[]>();
+    const col: number[] = [];
+
+    for (const key of keys) {
+      const week = Math.floor(key / 7);
+      const dayInWeek = key % 7;
+
+      if (dayInWeek === 0) {
+        col.length = 0;
+      }
+
+      col.push(commits.get(key)!);
+
+      if (dayInWeek === 6) {
+        cols.set(week, col);
+      }
+    }
+
+    return cols;
+  }
+
+  private printCommitsStats(commits: Map<number, number>) {
+    const keys = this.sortMapIntoArray(commits);
+    const col = this.buildCols(keys, commits);
+    this.printCells(cols);
   }
 
   // cool function to print a coller
