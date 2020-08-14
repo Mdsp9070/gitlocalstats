@@ -145,6 +145,23 @@ export class Stats extends Scan {
     console.log("");
   }
 
+  private printDayCol(day: number) {
+    let out = "     ";
+
+    switch (day) {
+      case 1:
+        out = " Mon ";
+        break;
+      case 3:
+        out = " Wed ";
+        break;
+      case 5:
+        out = " Fri ";
+        break;
+    }
+    process.stdout.write(out);
+  }
+
   // prints the cells of the graph
   private printCells(cols: Map<number, number[]>) {
     this.printMonths();
