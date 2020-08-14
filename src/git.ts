@@ -1,5 +1,6 @@
 import fs from "fs";
 import os from "os";
+import git from "nodegit";
 import { basename } from "path";
 
 export class GitLocal {
@@ -60,7 +61,7 @@ export class GitLocal {
 
   // adds the element of the 'new' array
   // into the 'current' array, only if not already there
-  joinArrays(newly: string[], current: string[]): string[] {
+  private joinArrays(newly: string[], current: string[]): string[] {
     for (const path of newly) {
       if (current.indexOf(path) === -1) {
         current.push(path);
@@ -71,7 +72,7 @@ export class GitLocal {
   }
 
   // join all paths and append to '.gitlocalstats'
-  dumpStringsArrayToFile(repos: string[], filePath: string) {
+  private dumpStringsArrayToFile(repos: string[], filePath: string) {
     const content = repos.join("\n");
 
     fs.appendFileSync(filePath, content);
@@ -93,7 +94,75 @@ export class GitLocal {
     console.log("\n\nSuccessfully added\n\n");
   }
 
+  private calcOffset(): number {
+    return new Date(Date.now()).getUTCMonth();
+  }
+
+  private countDaysSinceDate(date: Date, outOfRange: number): number {
+    const current = new Date(Date.now());
+    const days = Math.trunc(((+current - +date + 1) / 24) * 60 * 60 * 1000);
+
+    return days > 6 * 31 ? outOfRange : days;
+  }
+
+  private async fillCommits(
+    email: string,
+    path: string,
+    commits: Map<number, number>
+  ): Promise<Map<number, number>> {
+    try {
+      const repo = await git.Repository.open(path);
+      const first = await repo.getMasterCommit();
+      const history = first.history();
+      const outOfRange = 99999;
+      const offset = this.calcOffset();
+
+      history.on("commit", (commit) => {
+        const daysAgo =
+          this.countDaysSinceDate(commit.date(), outOfRange) + offset;
+
+        if (commit.author().email() !== email) return;
+
+        if (daysAgo !== outOfRange) {
+          const value = commits.get(daysAgo) || 0;
+          commits.set(daysAgo, value + 1);
+        }
+      });
+
+      history.start();
+
+      return commits;
+    } catch (err) {
+      console.log(err.message);
+      return commits;
+    }
+  }
+
+  // processRepositories given a user email, returns the
+  // commits made in the last 6 months
+  private async processRepositories(
+    email: string
+  ): Promise<Map<number, number>> {
+    const filePath = this.getDotFilePath();
+    const repos = this.parseFileLinesToArray(filePath);
+    const days = 6 * 31;
+    let commits = new Map<number, number>();
+
+    for (let i = days; i > 0; i--) {
+      commits.set(i, 0);
+    }
+
+    for (const path of repos) {
+      commits = await this.fillCommits(email, path, commits);
+    }
+
+    return commits;
+  }
+
   // cool function to print a coller
   // git stats graph!!!
-  stats(email: string) {}
+  async stats() {
+    const commits = await this.processRepositories(this.email);
+    this.printCommitsStats(commits);
+  }
 }

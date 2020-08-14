@@ -6,10 +6,12 @@
   "devDependencies": {
     "@types/commander": "^2.12.2",
     "@types/node": "^14.0.27",
+    "@types/nodegit": "^0.26.7",
     "pkg": "^4.4.9",
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "commander": "^6.0.0"
+    "commander": "^6.0.0",
+    "nodegit": "^0.27.0"
   }
 }
