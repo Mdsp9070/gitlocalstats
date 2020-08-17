@@ -5,13 +5,16 @@
   "license": "MIT",
   "devDependencies": {
     "@types/commander": "^2.12.2",
+    "@types/luxon": "^1.24.3",
     "@types/node": "^14.0.27",
     "@types/nodegit": "^0.26.7",
     "pkg": "^4.4.9",
     "typescript": "^3.9.7"
   },
   "dependencies": {
+    "chalk": "^4.1.0",
     "commander": "^6.0.0",
+    "luxon": "^1.24.1",
     "nodegit": "^0.27.0"
   }
 }

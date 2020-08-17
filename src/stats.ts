@@ -1,4 +1,6 @@
-import git from "nodegit";
+import git, { Commit } from "nodegit";
+import { DateTime } from "luxon";
+import chalk from "chalk";
 import { Scan } from "./scan";
 
 export class Stats extends Scan {
@@ -24,13 +26,14 @@ export class Stats extends Scan {
   }
 
   private calcOffset(): number {
-    return new Date(Date.now()).getUTCMonth();
+    return DateTime.local().month;
   }
 
   // count diff days from the date of commit from now
   private countDaysSinceDate(date: Date): number {
-    const current = new Date(Date.now());
-    const days = Math.trunc(((+current - +date + 1) / 24) * 60 * 60 * 1000);
+    const current = DateTime.local();
+    const newDate = DateTime.fromJSDate(date);
+    const days = Math.trunc(current.diff(newDate, "days").days);
 
     return days > 6 * 31 ? this.outOfRange : days;
   }
@@ -42,23 +45,24 @@ export class Stats extends Scan {
     commits: Map<number, number>
   ): Promise<Map<number, number>> {
     try {
-      const repo = await git.Repository.open(path);
-      const first = await repo.getMasterCommit();
-      const history = first.history();
+      const repo = await git.Repository.open(`${path}.git`);
+      const walker = git.Revwalk.create(repo);
+      console.log(walker)
+      walker.pushGlob("refs/heads/*");
       const offset = this.calcOffset();
 
-      history.on("commit", (commit) => {
+      const cmts: Commit[] = await walker.getCommitsUntil((_: unknown) => true);
+
+      for (const commit of cmts) {
         const daysAgo = this.countDaysSinceDate(commit.date()) + offset;
 
-        if (commit.author().email() !== email) return;
+        if (commit.author().email() !== email) continue;
 
         if (daysAgo !== this.outOfRange) {
           const value = commits.get(daysAgo) || 0;
           commits.set(daysAgo, value + 1);
         }
-      });
-
-      history.start();
+      }
 
       return commits;
     } catch (err) {
@@ -126,21 +130,22 @@ export class Stats extends Scan {
   }
 
   private printMonths() {
-    let week = new Date(
-      Date.now() / 1000 / 60 / 60 / 24 - this.daysInLastSixMonths
-    );
-    const month = week.getUTCMonth();
+    let week = DateTime.local().minus({ days: this.daysInLastSixMonths });
+    let month = week.month;
+    let la = 4;
 
     process.stdout.write("         ");
-    while (true) {
-      if (week.getUTCMonth() === month) {
-        process.stdout.write(this.monthNames[month]);
+    while (la !== 0) {
+      if (week.month === month) {
+        process.stdout.write(this.monthNames[week.month]);
+        month = week.month;
       } else {
         process.stdout.write("    ");
       }
 
-      week = new Date(+week + 7 * 24);
-      if (week === new Date(Date.now())) break;
+      week = week.plus({ week: 1 });
+      if (week === DateTime.local()) break;
+      la--;
     }
     console.log("");
   }
@@ -163,28 +168,26 @@ export class Stats extends Scan {
   }
 
   private printCell(value: number, today: boolean) {
-    let escape = "\033[0;37;30m";
+    let escape = chalk.black;
 
     if (value > 0 && value < 5) {
-      escape = "\033[1;30;47m";
+      escape = chalk.black.bgGray;
     }
     if (value >= 5 && value < 10) {
-      escape = "\033[1;30;43m";
+      escape = chalk.black.bgYellow;
     }
-    if (value >= 10) escape = "\033[1;37;45m";
-
-    if (today) escape = "\033[1;37;45m";
+    if (value >= 10 || today) escape = chalk.gray.bgAnsi(45);
 
     if (value === 0) {
-      process.stdout.write(`${escape}  - \033[0m`);
+      process.stdout.write(escape("  - "));
       return;
     }
 
     if (value >= 10) {
-      process.stdout.write(`${escape} ${value} \033[0m`);
+      process.stdout.write(escape(` ${value} `));
     }
     if (value >= 100) {
-      process.stdout.write(`${escape}${value} \033[0m`);
+      process.stdout.write(escape(value));
     }
   }
 

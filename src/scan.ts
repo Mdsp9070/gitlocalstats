@@ -12,25 +12,23 @@ export class Scan {
 
     let path = "";
 
-    fs.readdir(folder, (err, files) => {
-      if (err) process.stdout.write(err.message);
+    const files = fs.readdirSync(folder);
 
-      for (const file of files) {
-        if (fs.statSync(file).isDirectory()) {
-          path = `${folder}/${basename(file)}`;
+    for (const file of files) {
+      if (fs.lstatSync(`${folder}/${file}`).isDirectory()) {
+        path = `${folder}/${basename(file)}`;
 
-          if (basename(file) === ".git") {
-            path = path.replace(/.git$/g, "");
-            console.log(path);
-            folders.push(path);
-            continue;
-          }
-          if (basename(file) === "vendor" || basename(file) === "node_modules")
-            continue;
-          folders = this.scanGitFolders(folders, path);
+        if (file === " ") continue;
+        if (basename(file) === ".git") {
+          path = path.replace(/.git$/g, "");
+          folders.push(path);
+          continue;
         }
+        if (basename(file) === "vendor" || basename(file) === "node_modules")
+          continue;
+        folders = this.scanGitFolders(folders, path);
       }
-    });
+    }
 
     return folders;
   }
@@ -86,10 +84,8 @@ export class Scan {
 
   // main function to scan folders
   scan() {
-    console.log("Found folders: \n\n");
     const repositories = this.recursiveScanFolder(this.folder);
     const filePath = this.getDotFilePath();
     this.addNewArrayElementsToFile(filePath, repositories);
-    console.log("\n\nSuccessfully added\n\n");
   }
 }

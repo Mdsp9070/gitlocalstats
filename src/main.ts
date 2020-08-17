@@ -16,7 +16,9 @@ program
 program.parse(process.argv);
 
 // creates a new instance of gitlocalstats
-const gitStats = new Stats(email, folder);
+(async () => {
+  const gitStats = new Stats(email, folder);
 
-gitStats.scan();
-gitStats.stats();
+  gitStats.scan();
+  await gitStats.stats();
+})();
