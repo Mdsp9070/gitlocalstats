@@ -1,4 +1,4 @@
-import git, { Commit } from "nodegit";
+import simpleGit from "simple-git";
 import { DateTime } from "luxon";
 import chalk from "chalk";
 import { Scan } from "./scan";
@@ -45,18 +45,14 @@ export class Stats extends Scan {
     commits: Map<number, number>
   ): Promise<Map<number, number>> {
     try {
-      const repo = await git.Repository.open(`${path}.git`);
-      const walker = git.Revwalk.create(repo);
-      console.log(walker)
-      walker.pushGlob("refs/heads/*");
+      const git = simpleGit(path);
+      const log = (await git.log()).all;
       const offset = this.calcOffset();
 
-      const cmts: Commit[] = await walker.getCommitsUntil((_: unknown) => true);
+      for (const commit of log) {
+        const daysAgo = this.countDaysSinceDate(new Date(commit.date)) + offset;
 
-      for (const commit of cmts) {
-        const daysAgo = this.countDaysSinceDate(commit.date()) + offset;
-
-        if (commit.author().email() !== email) continue;
+        if (commit.author_email !== email) continue;
 
         if (daysAgo !== this.outOfRange) {
           const value = commits.get(daysAgo) || 0;
