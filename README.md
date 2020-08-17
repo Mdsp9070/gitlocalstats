@@ -17,10 +17,6 @@ A CLI tool to let you know how many contributions you made to your repositories,
   <img src="./assets/output.png" alt="sample of gitlocalstats output"/>
 </div>
 
-# WARNING
-
-This CLI is not working as expected, it gives me this error when I try to use `fs.lstatSync().isDirectory()`: `Error: ENOENT: no such file or directory, lstat 'Basics'`. I don't know how to solve, but I'm working to solve this.
-
 ## Install
 
 ```sh
