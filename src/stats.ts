@@ -1,24 +1,24 @@
-import simpleGit from "simple-git";
-import { DateTime } from "luxon";
-import chalk from "chalk";
-import { Scan } from "./scan";
+import simpleGit from 'simple-git';
+import { DateTime } from 'luxon';
+import chalk from 'chalk';
+import { Scan } from './scan';
 
 export class Stats extends Scan {
-  private outOfRange: number = 99999;
-  private daysInLastSixMonths: number = 183;
+  private outOfRange = 99999;
+  private daysInLastSixMonths = 183;
   private monthNames: string[] = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   constructor(private email: string, folder: string) {
@@ -33,7 +33,7 @@ export class Stats extends Scan {
   private countDaysSinceDate(date: Date): number {
     const current = DateTime.local();
     const newDate = DateTime.fromJSDate(date);
-    const days = Math.trunc(current.diff(newDate, "days").days);
+    const days = Math.trunc(current.diff(newDate, 'days').days);
 
     return days > 6 * 31 ? this.outOfRange : days;
   }
@@ -130,34 +130,34 @@ export class Stats extends Scan {
     let month = week.month;
     let la = 4;
 
-    process.stdout.write("         ");
+    process.stdout.write('         ');
     while (la !== 0) {
       if (week.month === month) {
         process.stdout.write(this.monthNames[week.month]);
         month = week.month;
       } else {
-        process.stdout.write("    ");
+        process.stdout.write('    ');
       }
 
       week = week.plus({ week: 1 });
       if (week === DateTime.local()) break;
       la--;
     }
-    console.log("");
+    console.log('');
   }
 
   private printDayCol(day: number) {
-    let out = "     ";
+    let out = '     ';
 
     switch (day) {
       case 1:
-        out = " Mon ";
+        out = ' Mon ';
         break;
       case 3:
-        out = " Wed ";
+        out = ' Wed ';
         break;
       case 5:
-        out = " Fri ";
+        out = ' Fri ';
         break;
     }
     process.stdout.write(out);
@@ -175,7 +175,7 @@ export class Stats extends Scan {
     if (value >= 10 || today) escape = chalk.gray.bgAnsi(45);
 
     if (value === 0) {
-      process.stdout.write(escape("  - "));
+      process.stdout.write(escape('  - '));
       return;
     }
 
@@ -211,7 +211,7 @@ export class Stats extends Scan {
         }
         this.printCell(0, false);
       }
-      console.log("");
+      console.log('');
     }
   }
 
