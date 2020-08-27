@@ -120,6 +120,7 @@ export class Stats extends Scan {
       if (dayInWeek === 6) {
         cols.set(week, col);
       }
+      console.log(cols);
     }
 
     return cols;
@@ -128,20 +129,19 @@ export class Stats extends Scan {
   private printMonths() {
     let week = DateTime.local().minus({ days: this.daysInLastSixMonths });
     let month = week.month;
-    let la = 4;
+    //let la = 4;
 
     process.stdout.write('         ');
-    while (la !== 0) {
-      if (week.month === month) {
+    while (true) {
+      if (week.month !== month) {
         process.stdout.write(this.monthNames[week.month]);
         month = week.month;
       } else {
         process.stdout.write('    ');
       }
-
       week = week.plus({ week: 1 });
-      if (week === DateTime.local()) break;
-      la--;
+      if (week >= DateTime.local()) break;
+      //la--;
     }
     console.log('');
   }
@@ -223,7 +223,7 @@ export class Stats extends Scan {
 
   // cool function to print a coller
   // git stats graph!!!
-  async stats() {
+  async stats(): Promise<void> {
     const commits = await this.processRepositories(this.email);
     this.printCommitsStats(commits);
   }
