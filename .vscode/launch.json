@@ -8,10 +8,10 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "skipFiles": ["<node_internals>/**"],
+      "skipFiles": ["node_modules/**"],
       "program": "${workspaceFolder}/src/main.ts",
-      "preLaunchTask": "tsc: build - tsconfig.json",
-      "outFiles": ["${workspaceFolder}/build/src/**/*.js"]
+      "runtimeExecutable": "ts-node",
+      "args": ["~/Documents/BeTheHero", "matheus_pessanha2001@outlook.com"]
     }
   ]
 }

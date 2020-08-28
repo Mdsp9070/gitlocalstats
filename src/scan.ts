@@ -1,6 +1,7 @@
 import fs from 'fs';
-import os from 'os';
 import { basename } from 'path';
+
+import { getDotFilePath, parseFileLinesToArray } from './utils/functions';
 
 export class Scan {
   // instanciate properties
@@ -38,27 +39,6 @@ export class Scan {
     return this.scanGitFolders([], folder);
   }
 
-  // get '.gitlocalstats' file path
-  public getDotFilePath(): string {
-    return `${os.homedir()}/.gitlocalstats`;
-  }
-
-  // get existing repos by reading
-  // the actual content of '.gitlocalstats'
-  public parseFileLinesToArray(filePath: string): string[] {
-    // if file doesn't exist, create it
-    if (!fs.existsSync(filePath)) {
-      fs.closeSync(fs.openSync(this.getDotFilePath(), 'w'));
-      console.log('Creating ".gitlocalstats" on your home directory!');
-      return [];
-    }
-    const repos = fs.readFileSync(filePath).toString().split('\n');
-
-    fs.writeFileSync(filePath, '');
-
-    return repos;
-  }
-
   // adds the element of the 'new' array
   // into the 'current' array, only if not already there
   private joinArrays(newly: string[], current: string[]): string[] {
@@ -80,7 +60,7 @@ export class Scan {
 
   // add new paths to the '.gitlocalstats'
   private addNewArrayElementsToFile(filePath: string, newRepos: string[]) {
-    const existingRepos = this.parseFileLinesToArray(filePath);
+    const existingRepos = parseFileLinesToArray(filePath);
     const repos = this.joinArrays(newRepos, existingRepos);
     this.dumpStringsArrayToFile(repos, filePath);
   }
@@ -88,7 +68,7 @@ export class Scan {
   // main function to scan folders
   scan(): void {
     const repositories = this.recursiveScanFolder(this.folder);
-    const filePath = this.getDotFilePath();
+    const filePath = getDotFilePath();
     this.addNewArrayElementsToFile(filePath, repositories);
   }
 }
