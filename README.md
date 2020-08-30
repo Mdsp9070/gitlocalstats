@@ -27,6 +27,10 @@ A CLI tool to let you know how many contributions you made to your repositories,
 
 ```sh
   tsc && node build/src/main.js <folder> <email>
+
+  #OR
+
+  pkg -t node14-linux . -o gitlocalstats && ./gitlocalstats <folder> <email>
 ```
 
 ## Author
