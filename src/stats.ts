@@ -115,14 +115,14 @@ export class Stats {
     commits: Map<number, number>
   ): Map<number, number[]> {
     const cols = new Map<number, number[]>();
+    let col: number[] = [];
 
     for (const key of keys) {
-      const col: number[] = [];
       const week = Math.floor(key / 7);
       const dayInWeek = key % 7;
 
       if (dayInWeek === 0) {
-        col.length = 0;
+        col = [];
       }
       const commit = commits.get(key);
 
@@ -174,14 +174,15 @@ export class Stats {
     let escape = chalk.black;
 
     if (value > 0 && value < 5) {
-      escape = chalk.white.bgGray;
+      escape = chalk.black.bgWhite;
     }
     if (value >= 5 && value < 10) {
       escape = chalk.white.bgYellow;
     }
-    if (value >= 10 || today) escape = chalk.white.bgAnsi(45);
+    if (value >= 10 || today) escape = chalk.black.bgGreen;
 
-    if (value === 0) {
+    if (value === 0 || value === undefined) {
+      escape = chalk.black;
       process.stdout.write(escape('  - '));
       return;
     }
@@ -208,7 +209,7 @@ export class Stats {
           this.printDayCol(j);
         }
         const col = cols.get(i);
-        if (col) {
+        if (col?.length) {
           if (i === 0 && j === this.calcOffset() - 1) {
             this.printCell(col[j], true);
             continue;

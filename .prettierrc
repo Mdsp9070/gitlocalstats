@@ -9,7 +9,5 @@
   "useTabs": false,
   "singleQuote": true,
   "tabWidth": 2,
-  "trailingComma": "es5",
-  "jsxBracketSameLine": false,
-  "jsxSingleQuote": true
+  "trailingComma": "es5"
 }
