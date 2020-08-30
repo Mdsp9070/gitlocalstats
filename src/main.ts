@@ -4,24 +4,22 @@ import { Scan } from './scan';
 import { Stats } from './stats';
 
 // variables to hold arguments values
-const folder = '/home/mdsp/Documents/BeTheHero';
-const email = 'matheus_pessanha2001@outlook.com';
+const args: string[] = [];
 
 // instanciate my program and parse my required arguments
-// program
-//   .arguments('<folderArg> <emailArg>')
-//   .action((folderArg: string, emailArg: string) => {
-//     folder = folderArg;
-//     email = emailArg;
-//   });
+program
+  .arguments('<folderArg> <emailArg>')
+  .action((folder: string, email: string) => {
+    args.push(folder, email);
+  });
 
-// program.parse(process.argv);
+program.parse(process.argv);
 
 // creates a new instance of gitlocalstats
 (async () => {
-  const gitScan = new Scan(folder);
+  const gitScan = new Scan(args[0]);
   gitScan.scan();
 
-  const gitStats = new Stats(email);
+  const gitStats = new Stats(args[1]);
   await gitStats.stats();
 })();
