@@ -177,7 +177,7 @@ export class Stats {
       escape = chalk.black.bgWhite;
     }
     if (value >= 5 && value < 10) {
-      escape = chalk.white.bgYellow;
+      escape = chalk.black.bgYellow;
     }
     if (value >= 10 || today) escape = chalk.black.bgGreen;
 
