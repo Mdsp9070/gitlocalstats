@@ -30,7 +30,7 @@ A CLI tool to let you know how many contributions you made to your repositories,
 
   #OR
 
-  pkg -t node14-linux . -o gitlocalstats && ./gitlocalstats <folder> <email>
+  yarn global add pkg && pkg -t node14-linux . -o gitlocalstats && ./gitlocalstats <folder> <email>
 ```
 
 ## Author
