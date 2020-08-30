@@ -14,7 +14,7 @@
 A CLI tool to let you know how many contributions you made to your repositories, doesn't matter if it's on GitHub, GitLab or BitBucket! This means you have one source of proof!
 
 <div align="center" width="30%">
-  <img src="./assets/output.png" alt="sample of gitlocalstats output"/>
+  <img src="./assets/gitlocalstats.png" alt="sample of gitlocalstats output"/>
 </div>
 
 ## Install
